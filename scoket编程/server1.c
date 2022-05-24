@@ -41,14 +41,7 @@ int main()
        {
            buf[i]=toupper(buf[i]);
        }
-       ret=read(cld,buf,sizeof(buf));
-       write(1,buf,ret);
-      for(int i=0;i<ret;i++)
-     {
-         buf[i]=toupper(buf[i]);
-     }
-    write(cld,buf,ret);     
-        write(cld,buf,ret);
+      write(cld,buf,ret);     
     }
     close(cld);
     close(lfd);
