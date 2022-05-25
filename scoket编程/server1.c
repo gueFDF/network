@@ -27,7 +27,13 @@ int main()
     lfd=socket(AF_INET,SOCK_STREAM,0);
     if(lfd==-1)
     sys_err("socket error");
-    bind(lfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    int opt=1;
+    setsockopt(lfd,SOL_SOCKET ,SO_REUSEADDR,(void *)&opt,sizeof(int));
+    ret=bind(lfd,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    if(ret==-1)
+    {
+        sys_err("bind error");
+    }
     listen(lfd,128);
     socklen_t len=sizeof(clit_addr);
     cld=accept(lfd,(struct sockaddr*)&clit_addr,&len);
