@@ -36,6 +36,7 @@ void*do_work(void*arg)
         write(STDOUT_FILENO,buf,n);
         write(cfd,buf,n);
     }
+    close(cfd);  
     return NULL;
 }
 int main()
@@ -66,9 +67,11 @@ int main()
         cfd=accept(lfd,(struct sockaddr*)&clt_addr,&len);
         if(cfd==-1)
         myerror("accept error");
-        ttid[i++]=cfd;
+        ttid[i]=cfd;
         pthread_create(&tid,NULL,do_work,(void*)&ttid[i]);
         pthread_detach(tid);
+        i++;
     }
+    close(lfd);
     return 0;
 }
