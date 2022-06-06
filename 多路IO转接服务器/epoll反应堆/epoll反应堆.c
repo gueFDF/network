@@ -7,12 +7,12 @@
 #include <errno.h>
 #include <time.h>
 #include <fcntl.h>
-#include<string.h>
+#include <string.h>
 #include <strings.h>
 #include <arpa/inet.h>
 #define MAX_EVENTS 1024 //监听上限
 #define BUFLEN 4096
-#define SERV_PORT 8080
+#define SERV_PORT 8081
 void recvdata(int fd, int events, void *arg);
 void senddata(int fd, int events, void *arg);
 //错误处理函数
@@ -36,8 +36,6 @@ struct myevent_s
 int g_efd; //全局变量，保存监听红黑树的文件描述符
 struct myevent_s g_events[MAX_EVENTS + 1];
 
-
-
 //将结构体myevent_s成员变量初始化
 void eventset(struct myevent_s *ev, int fd, void (*call_back)(int, int, void *), void *arg)
 {
@@ -46,13 +44,13 @@ void eventset(struct myevent_s *ev, int fd, void (*call_back)(int, int, void *),
     ev->events = 0;
     ev->arg = arg;
     ev->status = 0;
-    memset(ev->buf, 0, sizeof(ev->buf));
-    ev->len = 0;
+    if(ev->len <= 0)
+    {
+        memset(ev->buf, 0, sizeof(ev->buf));
+        ev->len = 0;
+    }
     ev->last_active = time(NULL); //调用该函数的时间（时间戳）
 }
-
-
-
 
 //向监听红黑树上添加一根文件描述符
 void eventadd(int efd, int events, struct myevent_s *ev)
@@ -69,77 +67,69 @@ void eventadd(int efd, int events, struct myevent_s *ev)
     if (epoll_ctl(efd, op, ev->fd, &epv) < 0)
         printf("event add failed [fd=%d],events[%d]\n", ev->fd, events);
     else
-        printf("event add OK [fd=%d],op=%d,events[%d]\n", ev->fd,op, events);
+        printf("event add OK [fd=%d],op=%d,events[%d]\n", ev->fd, op, events);
     return;
 }
-
-
-
 
 //从监听红黑树上摘除一个节点
-void eventdel(int efd,struct myevent_s*ev)
+void eventdel(int efd, struct myevent_s *ev)
 {
-    struct epoll_event epv={0,{0}};
-    if(ev->status!=1)  //不在红黑树上
+    struct epoll_event epv = {0, {0}};
+    if (ev->status != 1) //不在红黑树上
+        return;
+    epv.data.ptr = NULL;
+    ev->status = 0;
+    epoll_ctl(efd, EPOLL_CTL_DEL, ev->fd, &epv);
     return;
-    epv.data.ptr=NULL;
-    ev->status=0;
-    epoll_ctl(efd,EPOLL_CTL_DEL,ev->fd,&epv);
 }
 
-
-
-void senddata(int fd,int events,void *arg)
+void senddata(int fd, int events, void *arg)
 {
-    struct myevent_s*ev=(struct myevent_s*)arg;
+    struct myevent_s *ev = (struct myevent_s *)arg;
     int len;
-    len=send(fd,ev->buf,ev->len,0);
-    eventdel(g_efd,ev);
-     if (len > 0)
+    len = send(fd, ev->buf, ev->len, 0);
+    eventdel(g_efd, ev);
+    if (len > 0)
     {
-        printf("send[fd=%d],[%d]%s\n",fd,len,ev->buf);
-        eventset(ev,fd, recvdata, ev); //设置该fd对应的回调函数为senddata
-        eventadd(g_efd, EPOLLIN, ev);      //将fd加入红黑树g_efd中，监听其写事件
+        printf("send[fd=%d],[%d]%s\n", fd, len, ev->buf);
+        eventset(ev, fd, recvdata, ev); //设置该fd对应的回调函数为senddata
+        eventadd(g_efd, EPOLLIN, ev);   //将fd加入红黑树g_efd中，监听其写事件
     }
     else
     {
         close(ev->fd);
-        printf("send[fd=%d] error[%d]:%s\n",fd,errno,strerror(errno));
+        printf("send[fd=%d] error[%d]:%s\n", fd, errno, strerror(errno));
     }
     return;
 }
-
 
 void recvdata(int fd, int events, void *arg)
 {
     struct myevent_s *ev = (struct myevent_s *)arg;
     int len;
-    len = recv(fd, ev->buf, sizeof(ev->buf), 0);//读文件描述符，数据存入myevent_s成员buf中
-    eventdel(g_efd,ev);//将该节点从红黑树上摘除
+    len = recv(fd, ev->buf, sizeof(ev->buf), 0); //读文件描述符，数据存入myevent_s成员buf中
+    eventdel(g_efd, ev);                         //将该节点从红黑树上摘除
     if (len > 0)
     {
-        ev->len=len;
-        ev->buf[len]='\0';
-        printf("recv[%d]:%s\n",fd,ev->buf);
-        eventset(ev,fd, senddata, ev); //设置该fd对应的回调函数为senddata
-        eventadd(g_efd, EPOLLOUT, ev);      //将fd加入红黑树g_efd中，监听其写事件
+        ev->len = len;
+        ev->buf[len] = '\0';
+        printf("recv[%d]:%s\n", fd, ev->buf);
+        eventset(ev, fd, senddata, ev); //设置该fd对应的回调函数为senddata
+        eventadd(g_efd, EPOLLOUT, ev);  //将fd加入红黑树g_efd中，监听其写事件
     }
-    else if(len==0)
+    else if (len == 0)
     {
         close(ev->fd);
-        //ev-g_events地址相减得到偏移元素
-        printf("[fd=%d] pos [%ld],closed\n",fd,ev-g_events);
+        // ev-g_events地址相减得到偏移元素
+        printf("[fd=%d] pos [%ld],closed\n", fd, ev - g_events);
     }
     else
     {
         close(ev->fd);
-        printf("recv[fd=%d] error[%d]:%s\n",fd,errno,strerror(errno));
+        printf("recv[fd=%d] error[%d]:%s\n", fd, errno, strerror(errno));
     }
     return;
 }
-
-
-
 
 void acceptconn(int lfd, int events, void *arg)
 {
@@ -155,7 +145,6 @@ void acceptconn(int lfd, int events, void *arg)
         printf("accept error ,%s\n", strerror(errno));
         return;
     }
-
     do
     {
         for (i = 0; i < MAX_EVENTS; i++) //从全局数组g_events数组中找到一个空闲位置
@@ -177,9 +166,6 @@ void acceptconn(int lfd, int events, void *arg)
         eventadd(g_efd, EPOLLIN, &g_events[i]);
     } while (0);
 }
-
-
-
 
 //初始化socket ，初始化lfd
 void initlistensocket(int efd, short port)
@@ -203,10 +189,6 @@ void initlistensocket(int efd, short port)
     return;
 }
 
-
-
-
-
 int main(int argc, char *argv[])
 {
     unsigned short port = SERV_PORT;
@@ -222,8 +204,8 @@ int main(int argc, char *argv[])
     int checkpos = 0, i;
     while (1)
     {
-        //超时验证，每次测试100隔个链接，不测试listenfd 当客户端60秒内没有和服务器通信，则关闭此客户端连接
-        long now = time(NULL);
+        //超时验证，每次测试100个链接，不测试listenfd 当客户端60秒内没有和服务器通信，则关闭此客户端连接
+        /*long now = time(NULL);
         for (i = 0; i < 100; i++, checkpos++)
         {
             if (checkpos == MAX_EVENTS)
@@ -237,7 +219,7 @@ int main(int argc, char *argv[])
                 printf("[fd=%d] timeout\n", g_events[checkpos].fd);
                 eventdel(g_efd, &g_events[checkpos]); //将该客户端从红黑树g_efd移除
             }
-        }
+        }*/
         int nfd = epoll_wait(g_efd, events, MAX_EVENTS + 1, 1000);
         if (nfd < 0)
         {
