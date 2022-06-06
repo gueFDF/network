@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fcntl.h>
+#include<string.h>
 #include <strings.h>
 #include <arpa/inet.h>
 #define MAX_EVENTS 1024 //监听上限
@@ -68,7 +69,7 @@ void eventadd(int efd, int events, struct myevent_s *ev)
     if (epoll_ctl(efd, op, ev->fd, &epv) < 0)
         printf("event add failed [fd=%d],events[%d]\n", ev->fd, events);
     else
-        printf("event add OK [fd=%d],op=%d,events[%d]\n", ev->fd, events);
+        printf("event add OK [fd=%d],op=%d,events[%d]\n", ev->fd,op, events);
     return;
 }
 
@@ -76,7 +77,7 @@ void eventadd(int efd, int events, struct myevent_s *ev)
 
 
 //从监听红黑树上摘除一个节点
-void evendel(int efd,struct myevent_s*ev)
+void eventdel(int efd,struct myevent_s*ev)
 {
     struct epoll_event epv={0,{0}};
     if(ev->status!=1)  //不在红黑树上
@@ -191,7 +192,7 @@ void initlistensocket(int efd, short port)
     fcntl(lfd, F_SETFL, O_NONBLOCK); //将socket设置为非阻塞
     bzero(&sin, sizeof(sin));
     sin.sin_family = AF_INET;
-    sin.sin_family = htons(port);
+    sin.sin_port = htons(port);
     sin.sin_addr.s_addr = htonl(INADDR_ANY);
     ret = bind(lfd, (struct sockaddr *)&sin, sizeof(sin));
     if (ret == -1)
@@ -214,7 +215,7 @@ int main(int argc, char *argv[])
 
     g_efd = epoll_create(MAX_EVENTS + 1); //创建监听红黑树
     if (g_efd <= 0)
-        printf("creat efd in epoll_creat err %s\n", stdrerror(errno));
+        printf("creat efd in epoll_creat err %s\n", strerror(errno));
     initlistensocket(g_efd, port);             //初始化监听套接字(将socket ,bind,listn...进行封装)
     struct epoll_event events[MAX_EVENTS + 1]; //保存已经满足就绪事件的文件描述符数组
     printf("server running :port[%d]\n", port);
