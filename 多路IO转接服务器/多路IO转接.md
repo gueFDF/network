@@ -18,4 +18,4 @@ timeout  >0 设置监听超时时长
 # select优缺点：
 缺点:监听上限受文件描述符限制，最大1024
     检测满足条件的fd，自己添加业务逻辑提高小，提高编码难度。
-优点:跨平台。win,linux,macOS,Unix,等等
+优点:跨平台。win,linux,macOS,Unix,等等.
