@@ -120,9 +120,9 @@ int recvMsg(int fd,char**msg)
   int len=0;
   readn(fd,(char*)&len,4);
   len=ntohl(len);
-  printf("接收到的 数据块大小 %d",len);
-  *msg=(char*)malloc(len+1);
-  int Len=readn(fd,*msg,len);
+  printf("接收到的 数据块大小 %d\n",len);
+  char * data=(char*)malloc(len+1);
+  int Len=readn(fd,data,len);
   if(Len==0)
   { 
       printf("对方断开链接\n");
@@ -132,7 +132,8 @@ int recvMsg(int fd,char**msg)
   {
     printf("数据接收失败\n");
   }
-  *msg[len]='\0';
+  data[len]='\0';
+  *msg=data;
   return Len;
 }
 
