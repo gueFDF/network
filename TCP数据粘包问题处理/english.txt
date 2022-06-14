@@ -1,0 +1,56 @@
+  poll() performs a similar task to select(2): it waits for one of a set of file descriptors
+       to become ready to perform I/O.
+
+       The set of file descriptors to be monitored is specified in the fds argument, which is  an
+       array of structures of the following form:
+
+           struct pollfd {
+               int   fd;         /* file descriptor */
+               short events;     /* requested events */
+               short revents;    /* returned events */
+           };
+
+       The caller should specify the number of items in the fds array in nfds.
+
+       The field fd contains a file descriptor for an open file.  If this field is negative, then
+       the corresponding events field is ignored and the revents field returns zero.  (This  pro‐
+       vides  an  easy  way of ignoring a file descriptor for a single poll() call: simply negate
+       the fd field.)
+
+       The field events is an input parameter, a bit mask specifying the events  the  application
+       is interested in for the file descriptor fd.  If this field is specified as zero, then all
+       events are ignored for fd and revents returns zero.
+
+       The field revents is an output parameter, filled by the kernel with the events that  actu‐
+       ally occurred.  The bits returned in revents can include any of those specified in events,
+       or one of the values POLLERR, POLLHUP, or POLLNVAL.  (These three bits are meaningless  in
+       the  events  field, and will be set in the revents field whenever the corresponding condi‐
+       tion is true.)
+
+       If none of the events requested (and no error) has occurred for any of the  file  descrip‐
+       tors, then poll() blocks until one of the events occurs.
+
+       The  timeout argument specifies the minimum number of milliseconds that poll() will block.
+       (This interval will be rounded up to the system clock granularity, and  kernel  scheduling
+       delays mean that the blocking interval may overrun by a small amount.)  Specifying a nega‐
+       tive value in timeout means an infinite timeout.  Specifying  a  timeout  of  zero  causes
+       poll() to return immediately, even if no file descriptors are ready.
+
+       The bits that may be set/returned in events and revents are defined in <poll.h>:
+
+              POLLIN There is data to read.
+
+              POLLPRI
+                     There  is  urgent  data to read (e.g., out-of-band data on TCP socket; pseu‐
+                     doterminal master in packet mode has seen state change in slave).
+
+              POLLOUT
+                     Writing now will not block.
+
+              POLLRDHUP (since Linux 2.6.17)
+                     Stream socket peer closed connection, or shut down writing half  of  connec‐
+                     tion.   The _GNU_SOURCE feature test macro must be defined (before including
+                     any header files) in order to obtain this definition.
+
+              POLLERR
+
