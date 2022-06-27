@@ -3,7 +3,6 @@
        int select(int nfds, fd_set *readfds, fd_set *writefds,fd_set *exceptfds, struct timeval *timeout);
 ```
 ```
-
 nfds:监听的多有文件描述符中，最大的文件描述符+1
 readfds:读文件描述符监听合集(传入传出参数)
 writefds：写文件描述符监听集合(传入传出参数)
