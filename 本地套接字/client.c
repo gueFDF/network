@@ -37,6 +37,11 @@ int main()
     strcpy(seraddr.sun_path,SER);
     len=offsetof(struct sockaddr_un,sun_path)+strlen(seraddr.sun_path);
     ret=connect(cfd,(struct sockaddr*)&seraddr,len);
+    if(ret==-1)
+    {
+        printf("连接失败\n");
+        exit(1);
+    }
     printf("连接成功\n");
     while(1)
     {
