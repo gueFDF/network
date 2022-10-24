@@ -5,7 +5,6 @@
 #include <thread>
 #include <cstdio>
 
-
 #include <unistd.h>
 #include <sys/syscall.h>
 pid_t gettid()
@@ -25,7 +24,7 @@ public:
     }
     void remove(Request *req)
     {
-        printf("thread %d want get the lock\n",gettid());
+        printf("thread %d want get the lock\n", gettid());
         std::lock_guard<std::mutex> lk(mutex_);
         printf("thread %d get the lock\n", gettid());
         request_.erase(req);
@@ -53,7 +52,7 @@ public:
     {
         printf("thread %d want get the clock\n", gettid());
         std::lock_guard<std::mutex> lk(mutex_);
-        printf("thread %d get the clock\n",gettid());
+        printf("thread %d get the clock\n", gettid());
         sleep(1);
         g_inventory.remove(this);
     }
@@ -74,13 +73,13 @@ void Inventory::printAll() const
     std::lock_guard<std::mutex> lk(mutex_);
     printf("thread %d get the lock\n", gettid());
     sleep(1);
-    for (auto it = request_.begin(); it != request_.end(); ++it)
+    for (auto it = request_.begin(); it != request_.end(); ++it) //死锁问题决绝方案
     {
         (*it)->print();
-    }
-    printf("Inventory::printfAll() unlock\n");
-}
-void threadFunc()
+    }                                          //将set在临界区拷贝一份，然后在临界区外对副本惊醒操作
+    printf("Inventory::printfAll() unlock\n"); //缺点：拷贝set开销会比较大
+} //方案二：
+void threadFunc() //使用share_ptr管理
 {
     Request *req = new Request;
     req->process();

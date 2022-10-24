@@ -34,7 +34,7 @@ public:
     void lock()
     {
         pthread_mutex_lock(&mutex_);
-        holder_=gettid();
+        holder_ = gettid();
     }
     void unlock()
     {
@@ -69,5 +69,53 @@ private:
     Mutexlock &mutex_;
 };
 
-#define MuteLockGuard(x) static_assert(false,"missing name");
+#define MuteLockGuard(x) static_assert(false, "missing name");
 //防止产生那个一个匿名对象 MuteLockGuard
+
+//条件变量的防止封装
+class Condition : boost::noncopyable
+{
+
+public:
+    explicit Condition(Mutexlock &mutex) : mutex_(mutex)
+    {
+        pthread_cond_init(&pcond_, NULL);
+    }
+    ~Condition()
+    {
+        pthread_cond_destroy(&pcond_);
+    }
+    void wait()
+    {
+        pthread_cond_wait(&pcond_, mutex_.getPthreadMutex());
+    }
+    void notify()
+    {
+        pthread_cond_signal(&pcond_);
+    }
+    void notifyAll()
+    {
+        pthread_cond_broadcast(&pcond_);
+    }
+
+private:
+    Mutexlock &mutex_;
+    pthread_cond_t pcond_;
+};
+
+class CountDownLatch
+{
+public:
+    CountDownLatch(int count)
+    :mutex_(),condition_(mutex_),count_(count)
+    {
+
+    }
+
+private:
+    mutable Mutexlock mutex_;
+    Condition condition_;
+    int count_;
+};
+
+//该类并未分装完成，后续完成
