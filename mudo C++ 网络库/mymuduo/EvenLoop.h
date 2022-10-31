@@ -1,9 +1,11 @@
+#pragma once 
 #include <iostream>
 #include "noncopyable.hpp"
 #include <muduo/base/CurrentThread.h>
 #include <muduo/base/Logging.h>
 #include <poll.h>
 #include <boost/utility.hpp>
+class Channel;
 class EventLoop : noncopyable
 {
 public:
@@ -19,7 +21,7 @@ public:
     }
     bool isInLoopThread() const { return threadId_ == muduo::CurrentThread::tid(); };
     EventLoop *getEventLoopOfCurrentThread(); //返回当前的eventloop对象
-
+    void updatechannel(Channel*);
 private:
     void abortNotInLoopThread();
     bool looping_;

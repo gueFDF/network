@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "muduo/base/Thread.h"
+#include"channel.hpp"
 
 // test1
 //  void ThreadFunc()

@@ -24,11 +24,11 @@ using namespace std;
 // }
 
 
-int main()
-{
-    string str="a:123456789";
-    string id;
+// int main()
+// {
+//     string str="a:123456789";
+//     string id;
 
-    string::iterator clon=str.find(str.begin(),str.end(),':');
-    cout<<clon<<endl;
-}
+//     string::iterator clon=str.find(str.begin(),str.end(),':');
+//     cout<<clon<<endl;
+// }
