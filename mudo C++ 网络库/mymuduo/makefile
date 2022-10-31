@@ -1,9 +1,9 @@
 cc =g++
 CFLAGS=-Wall -g -o -std==gnu99 -lmuduo_net -lmuduo_base\
--pthread
+-pthread -lrt
 
 
-FILE=EventLoop.cc test.cc channel.cc
+FILE=EventLoop.cc test.cc channel.cc Poller.cc
 
 EXE_NAME=mymuduo
 

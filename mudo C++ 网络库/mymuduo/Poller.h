@@ -1,17 +1,21 @@
 /*Poller class 是IO多路的封装，它现在是一个具体类，而在muduo中是个抽象基类，
 因为muduo库同时支持poll和epoll两张IO多路复用机制。
 poller是EventLoop的间接成员，只提供其owner EvenLoop在IO线程调用，因此无需加锁*/
-#include "noncopyable.hpp"
-#include "EvenLoop.h"
+#pragma once
+
 #include <muduo/base/Timestamp.h>
-#include "channel.hpp"
 #include <vector>
 #include <map>
+#include<muduo/base/Logging.h>
+#include<poll.h>
+#include "Poller.h"
+#include"channel.h"
+#include"EvenLoop.h"
 struct pollfd;
-namespace mymuduo
-{
+struct Channel;
+struct EventLoop;
     // class Channel;
-    class Poller : noncopyable
+    class Poller 
     {
     public:
         typedef std::vector<Channel *> ChannelList;
@@ -36,4 +40,4 @@ namespace mymuduo
         PollFdList pollfds_;
         ChannelMap Channels_;
     };
-}
+

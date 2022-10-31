@@ -1,7 +1,6 @@
-#pragma once
-#include "Poller.hpp"
-namespace mymuduo
-{
+#include "Poller.h"
+#include"channel.h"
+#include"EvenLoop.h"
     Poller::Poller(EventLoop *loop) : ownerLoop_(loop) {}
     Poller::~Poller(){};
 
@@ -33,16 +32,47 @@ namespace mymuduo
     {
         for (PollFdList::const_iterator pfd = pollfds_.begin(); pfd != pollfds_.end() && numEvents > 0; ++pfd)
         {
-            if(pfd->revents>0)
+            if (pfd->revents > 0)
             {
                 --numEvents;
-                ChannelMap::const_iterator ch=Channels_.find(pfd->fd);
-                assert(ch!=Channels_.end());
-                Channel*channel=ch->second;
-                assert(channel->fd()==pfd->fd);
+                ChannelMap::const_iterator ch = Channels_.find(pfd->fd);
+                assert(ch != Channels_.end());
+                Channel *channel = ch->second;
+                assert(channel->fd() == pfd->fd);
                 channel->set_revents(pfd->revents);
                 activechannels->push_back(channel);
             }
         }
     }
-}
+    void Poller::updateChannel(Channel *channel)
+    {
+        assertInLoopThread();
+        LOG_TRACE << "fd=" << channel->fd() << "events" << channel->events();
+        if (channel->index() < 0)      //new fd
+        {
+            struct pollfd pfd;
+            pfd.fd = channel->fd();
+            pfd.events = static_cast<short>(channel->events());
+            pfd.revents = 0;
+            pollfds_.push_back(pfd);
+            int idx = static_cast<int>(pollfds_.size()) - 1;
+            channel->set_index(idx);
+            Channels_[pfd.fd] = channel;
+        }
+        else   //原本已存在
+        {
+            assert(Channels_.find(channel->fd())!=Channels_.end());//找得到
+            assert(Channels_[channel->fd()]==channel); 
+            int idx=channel->index();
+            assert(0<=idx&&idx<static_cast<int>(pollfds_.size()));
+            struct pollfd&pfd=pollfds_[idx];
+            assert(pfd.fd==channel->fd()||pfd.fd==-1);
+            pfd.revents=0;
+
+            //如果暂时不关心任何事件，可以将pollfd中的fd设置为-1
+            if(channel->isNoneEvent())
+            {
+                pfd.fd=-1;
+            }
+        }
+    }

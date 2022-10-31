@@ -1,10 +1,11 @@
 #pragma once 
-#include "EvenLoop.h"
-#include <functional>
-class EventLoop;
 
+#include <functional>
 //每一个fd都会封装成一个channel
-class Channel : noncopyable
+
+class Poller;
+class EventLoop;
+class Channel 
 {
 
 public:

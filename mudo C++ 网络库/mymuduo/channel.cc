@@ -1,4 +1,8 @@
-#include "channel.hpp"
+#include "Poller.h"
+#include"channel.h"
+#include"EvenLoop.h"
+#include<poll.h>
+#include <muduo/base/Logging.h>
 const int Channel::kNoneEvent = 0;                //不关注任何事件
 const int Channel::kReadEvent = POLLIN | POLLPRI; //关注读事件
 const int Channel::kWriteEvent = POLLOUT;         //关注渎事件

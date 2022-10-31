@@ -1,8 +1,10 @@
-#include "EvenLoop.h"
+#include "Poller.h"
+#include"channel.h"
+#include"EvenLoop.h"
 __thread EventLoop *t_loopInThisThread = 0;
 
 EventLoop::EventLoop()
-    : looping_(false), threadId_(muduo::CurrentThread::tid())
+    : looping_(false),quit_(false), threadId_(muduo::CurrentThread::tid()),poller_(new Poller(this))
 {
     LOG_TRACE << "EventLoop created" << this << "in thread" << threadId_;
     if (t_loopInThisThread) //判断当前线程是否已创建了EventLoop，若已创建，FATAL，若没有创建，将this给t_loopInThisThread
@@ -36,11 +38,37 @@ void EventLoop::abortNotInLoopThread()
 // IO线程只能在某个特定线程调用，所以要判断
 void EventLoop::loop()
 {
+
+    int  kPollTimeMs=5*1000;
     assert(!looping_);    //确保只开启一次
     assertInLoopThread(); //保证在当前线程
     looping_ = true;
-    ::poll(NULL, 0, 5 * 1000); //开始等待请求到来(在这暂时还未写入操作)
+    quit_=false;
+    while(!quit_)
+    {
+        activeChannels_.clear();
+        poller_->poll(kPollTimeMs,&activeChannels_);
+        for(ChannelList::iterator it=activeChannels_.begin();it!=activeChannels_.end();++it)
+        {
+            //处理事件对应回调
+            (*it)->handleEvent();
+        }
+    
+    }
+
 
     LOG_TRACE << "EventLoop" << this << "stop looping";
     looping_ = false;
+}
+
+void EventLoop::quit()
+{
+    quit_=true;
+}
+
+void EventLoop::updatechannel(Channel*channel)
+{
+    assert(channel->ownerLoop()==this);
+    assertInLoopThread();
+    poller_->updateChannel(channel);
 }
