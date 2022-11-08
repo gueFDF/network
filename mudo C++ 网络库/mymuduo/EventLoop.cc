@@ -72,3 +72,33 @@ void EventLoop::updatechannel(Channel*channel)
     assertInLoopThread();
     poller_->updateChannel(channel);
 }
+
+
+//若在当前io线程，直接调用回调，若用户在其他线程调用runInLoop，cb会加入队列
+void EventLoop:: runInLoop(const Functor &cb)
+{
+    if(isInLoopThread())
+    {
+        cb();
+    }
+    else
+    {
+        queueInLoop(cb);
+    }
+
+}
+
+
+//将cb加入队列
+void EventLoop::queueInLoop(const Functor&cb)
+{
+    {
+        muduo::MutexLockGuard lock(mutex_);
+        pendingFunctors_.push_back(cb);
+    }
+    if(!isInLoopThread()/*||callin*/)
+    {
+        //wak
+    }
+
+}
