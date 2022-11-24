@@ -30,6 +30,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/service.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
@@ -696,6 +697,73 @@ class AddResponse PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::int32 result_;
   friend struct ::TableStruct_echo_5fserver_2eproto;
 };
+// ===================================================================
+
+class EchoService_Stub;
+
+class EchoService : public ::PROTOBUF_NAMESPACE_ID::Service {
+ protected:
+  // This class should be treated as an abstract interface.
+  inline EchoService() {};
+ public:
+  virtual ~EchoService();
+
+  typedef EchoService_Stub Stub;
+
+  static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* descriptor();
+
+  virtual void Echo(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::echo::EchoRequest* request,
+                       ::echo::EchoResponse* response,
+                       ::google::protobuf::Closure* done);
+  virtual void Add(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::echo::AddRequest* request,
+                       ::echo::AddResponse* response,
+                       ::google::protobuf::Closure* done);
+
+  // implements Service ----------------------------------------------
+
+  const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* GetDescriptor();
+  void CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                  ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                  const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                  ::PROTOBUF_NAMESPACE_ID::Message* response,
+                  ::google::protobuf::Closure* done);
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+  const ::PROTOBUF_NAMESPACE_ID::Message& GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const;
+
+ private:
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(EchoService);
+};
+
+class EchoService_Stub : public EchoService {
+ public:
+  EchoService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel);
+  EchoService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+                   ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership);
+  ~EchoService_Stub();
+
+  inline ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel() { return channel_; }
+
+  // implements EchoService ------------------------------------------
+
+  void Echo(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::echo::EchoRequest* request,
+                       ::echo::EchoResponse* response,
+                       ::google::protobuf::Closure* done);
+  void Add(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                       const ::echo::AddRequest* request,
+                       ::echo::AddResponse* response,
+                       ::google::protobuf::Closure* done);
+ private:
+  ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel_;
+  bool owns_channel_;
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(EchoService_Stub);
+};
+
+
 // ===================================================================
 
 

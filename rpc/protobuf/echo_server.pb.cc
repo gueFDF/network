@@ -86,7 +86,7 @@ static void InitDefaultsscc_info_EchoResponse_echo_5fserver_2eproto() {
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_echo_5fserver_2eproto[4];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_echo_5fserver_2eproto = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_echo_5fserver_2eproto = nullptr;
+static const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* file_level_service_descriptors_echo_5fserver_2eproto[1];
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_echo_5fserver_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   PROTOBUF_FIELD_OFFSET(::echo::EchoRequest, _has_bits_),
@@ -141,7 +141,7 @@ const char descriptor_table_protodef_echo_5fserver_2eproto[] PROTOBUF_SECTION_VA
   "\030\002 \001(\005\"\035\n\013AddResponse\022\016\n\006result\030\001 \001(\0052h\n"
   "\013EchoService\022-\n\004Echo\022\021.echo.EchoRequest\032"
   "\022.echo.EchoResponse\022*\n\003Add\022\020.echo.AddReq"
-  "uest\032\021.echo.AddResponse"
+  "uest\032\021.echo.AddResponseB\003\200\001\001"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_echo_5fserver_2eproto_deps[1] = {
 };
@@ -153,7 +153,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_ech
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_echo_5fserver_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_echo_5fserver_2eproto = {
-  false, false, descriptor_table_protodef_echo_5fserver_2eproto, "echo_server.proto", 263,
+  false, false, descriptor_table_protodef_echo_5fserver_2eproto, "echo_server.proto", 268,
   &descriptor_table_echo_5fserver_2eproto_once, descriptor_table_echo_5fserver_2eproto_sccs, descriptor_table_echo_5fserver_2eproto_deps, 4, 0,
   schemas, file_default_instances, TableStruct_echo_5fserver_2eproto::offsets,
   file_level_metadata_echo_5fserver_2eproto, 4, file_level_enum_descriptors_echo_5fserver_2eproto, file_level_service_descriptors_echo_5fserver_2eproto,
@@ -1066,6 +1066,120 @@ void AddResponse::InternalSwap(AddResponse* other) {
   return GetMetadataStatic();
 }
 
+
+// ===================================================================
+
+EchoService::~EchoService() {}
+
+const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* EchoService::descriptor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_echo_5fserver_2eproto);
+  return file_level_service_descriptors_echo_5fserver_2eproto[0];
+}
+
+const ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor* EchoService::GetDescriptor() {
+  return descriptor();
+}
+
+void EchoService::Echo(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::echo::EchoRequest*,
+                         ::echo::EchoResponse*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method Echo() not implemented.");
+  done->Run();
+}
+
+void EchoService::Add(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                         const ::echo::AddRequest*,
+                         ::echo::AddResponse*,
+                         ::google::protobuf::Closure* done) {
+  controller->SetFailed("Method Add() not implemented.");
+  done->Run();
+}
+
+void EchoService::CallMethod(const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method,
+                             ::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                             const ::PROTOBUF_NAMESPACE_ID::Message* request,
+                             ::PROTOBUF_NAMESPACE_ID::Message* response,
+                             ::google::protobuf::Closure* done) {
+  GOOGLE_DCHECK_EQ(method->service(), file_level_service_descriptors_echo_5fserver_2eproto[0]);
+  switch(method->index()) {
+    case 0:
+      Echo(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::echo::EchoRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::echo::EchoResponse*>(
+                 response),
+             done);
+      break;
+    case 1:
+      Add(controller,
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<const ::echo::AddRequest*>(
+                 request),
+             ::PROTOBUF_NAMESPACE_ID::internal::DownCast<::echo::AddResponse*>(
+                 response),
+             done);
+      break;
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      break;
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message& EchoService::GetRequestPrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
+    case 0:
+      return ::echo::EchoRequest::default_instance();
+    case 1:
+      return ::echo::AddRequest::default_instance();
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
+          ->GetPrototype(method->input_type());
+  }
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message& EchoService::GetResponsePrototype(
+    const ::PROTOBUF_NAMESPACE_ID::MethodDescriptor* method) const {
+  GOOGLE_DCHECK_EQ(method->service(), descriptor());
+  switch(method->index()) {
+    case 0:
+      return ::echo::EchoResponse::default_instance();
+    case 1:
+      return ::echo::AddResponse::default_instance();
+    default:
+      GOOGLE_LOG(FATAL) << "Bad method index; this should never happen.";
+      return *::PROTOBUF_NAMESPACE_ID::MessageFactory::generated_factory()
+          ->GetPrototype(method->output_type());
+  }
+}
+
+EchoService_Stub::EchoService_Stub(::PROTOBUF_NAMESPACE_ID::RpcChannel* channel)
+  : channel_(channel), owns_channel_(false) {}
+EchoService_Stub::EchoService_Stub(
+    ::PROTOBUF_NAMESPACE_ID::RpcChannel* channel,
+    ::PROTOBUF_NAMESPACE_ID::Service::ChannelOwnership ownership)
+  : channel_(channel),
+    owns_channel_(ownership == ::PROTOBUF_NAMESPACE_ID::Service::STUB_OWNS_CHANNEL) {}
+EchoService_Stub::~EchoService_Stub() {
+  if (owns_channel_) delete channel_;
+}
+
+void EchoService_Stub::Echo(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::echo::EchoRequest* request,
+                              ::echo::EchoResponse* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(0),
+                       controller, request, response, done);
+}
+void EchoService_Stub::Add(::PROTOBUF_NAMESPACE_ID::RpcController* controller,
+                              const ::echo::AddRequest* request,
+                              ::echo::AddResponse* response,
+                              ::google::protobuf::Closure* done) {
+  channel_->CallMethod(descriptor()->method(1),
+                       controller, request, response, done);
+}
 
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace echo
