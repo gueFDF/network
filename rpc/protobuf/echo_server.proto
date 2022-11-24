@@ -1,0 +1,36 @@
+syntax="proto2";
+
+package echo;
+
+message EchoRequest{
+    optional string  message =1;
+}
+
+message EchoResponse{
+   optional string message=1;
+}
+
+message AddRequest{
+    optional int32 a=1;
+    optional int32 b=2;
+}
+
+message AddResponse{
+    optional int32 result =1;
+}
+
+//让 protoc 生成接口类，其中包括 2 个方法 Echo 和 Add
+service EchoService{
+    rpc Echo(EchoRequest)  returns(EchoResponse);
+    rpc Add(AddRequest)    returns(AddResponse);
+}
+/*
+Echo 方法：客户端调用这个方法，请求的“数据结构” EchoRequest
+ 中包含一个 string 类型，也就是一串字符；
+ 服务端返回的“数据结构” EchoResponse 中也是一个 string 字符串；
+
+Add 方法：客户端调用这个方法，请求的“数据结构” AddRequest 
+中包含 2 个整型数据，
+服务端返回的“数据结构” AddResponse 中包含一个整型数据(计算结果);
+*/
+
